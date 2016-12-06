@@ -28,6 +28,7 @@ namespace Week21112016
             {
                 TimeToStart.Elapsed += TimeToStart_Elapsed;
                 TimeToStart.Start();
+                Started = true;
             }
         }
         private static void TimeToStart_Elapsed(object sender, ElapsedEventArgs e)
@@ -61,6 +62,8 @@ namespace Week21112016
                     GameState.Players = csvReader.GetRecords<PlayerData>().ToList();
                 }
             }
+
+            
 
         }
 

@@ -221,7 +221,7 @@ namespace MonoGameClient
 
         private void decrementCount(TimeSpan elapsedGameTime)
         {
-            if (countDown.TotalSeconds > 0)
+            if (countDown.TotalMilliseconds >= 0)
                 countDown = countDown.Subtract(elapsedGameTime);
             timerMessage = "Time to Start " + countDown.TotalSeconds.ToString();
         }
