@@ -223,7 +223,7 @@ namespace MonoGameClient
         {
             if (countDown.TotalMilliseconds >= 0)
                 countDown = countDown.Subtract(elapsedGameTime);
-            timerMessage = "Time to Start " + countDown.TotalSeconds.ToString();
+            timerMessage = "Time to Start " + Math.Round(countDown.TotalSeconds).ToString();
         }
 
         /// <summary>

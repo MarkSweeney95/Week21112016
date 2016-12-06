@@ -16,11 +16,30 @@ namespace Week21112016
     public static class GameState
     {
         public static List<PlayerData> Players = new List<PlayerData>();
+        public static List<CollectableData> Collectables = new List<CollectableData>();
         public static int WorldX = 2000;
         public static int WorldY = 2000;
         public static TimeSpan countDown = new TimeSpan(0, 0, 0, 10);
         public static Timer TimeToStart = new Timer(1000);
         public static bool Started;
+
+        public static void createCollectables()
+        {
+            int noOfCollectables = new Random().Next(5, 10);
+            for (int i = 0; i < noOfCollectables; i++)
+            {
+                Collectables.Add(new CollectableData
+                {
+                    ACTION = COLLECTABLE_ACTION.DELIVERED,
+                    collectableId = Guid.NewGuid().ToString(),
+                    CollectableName = "chaser",
+                    collectableValue = new Random().Next(0, 100),
+                    X = new Random().Next(100, WorldX - 100),
+                    Y = new Random().Next(100, WorldY - 100)
+                });
+            }
+           
+        }
 
         public static void StartTimer()
         {
@@ -50,16 +69,19 @@ namespace Week21112016
     {
         public GameHub() : base()
         {
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            string resourceName = "Week21112016.randomNameswithscores.csv";
-            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            if (GameState.Players.Count() == 0)
             {
-                using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                string resourceName = "Week21112016.randomNameswithscores.csv";
+                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
                 {
-                    CsvReader csvReader = new CsvReader(reader);
-                    csvReader.Configuration.HasHeaderRecord = false;
-                    csvReader.Configuration.WillThrowOnMissingField = false;
-                    GameState.Players = csvReader.GetRecords<PlayerData>().ToList();
+                    using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
+                    {
+                        CsvReader csvReader = new CsvReader(reader);
+                        csvReader.Configuration.HasHeaderRecord = false;
+                        csvReader.Configuration.WillThrowOnMissingField = false;
+                        GameState.Players = csvReader.GetRecords<PlayerData>().ToList();
+                    }
                 }
             }
 
@@ -83,6 +105,18 @@ namespace Week21112016
             Clients.Caller.joined(GameState.WorldX, GameState.WorldY);
         }
 
+        public void getCollectables()
+        {
+            if (GameState.Collectables.Count() == 0)
+                GameState.createCollectables();
+
+            foreach(CollectableData c in GameState.Collectables)
+            {
+                Clients.All.deliver(c);
+            }
+
+        }
+
         public void getPlayer(string FirstName, string SecondName)
         {
             var player = GameState.Players.FirstOrDefault(
@@ -91,6 +125,7 @@ namespace Week21112016
             if (player != null)
             {
                 Clients.Caller.recievePlayer(player);
+                
                 if (!GameState.Started)
                     GameState.StartTimer();
                 Clients.All.recieveCountDown(GameState.countDown.TotalSeconds);

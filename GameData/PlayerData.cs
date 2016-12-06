@@ -8,7 +8,7 @@ namespace GameData
 {
     public class PlayerData
     {
-        public string PlayerID { get; set; }
+        public int PlayerID { get; set; }
         public string FirstName { get; set; }
         public string SecondName { get; set; }
         public string Tag { get; set; }
